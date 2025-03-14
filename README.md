@@ -2,6 +2,8 @@
 
 **BooksToScrape_ETL** is an end-to-end data project that extracts data from the [Books to Scrape](http://books.toscrape.com/) website, transforms and cleans the data, stores it in a MySQL database, and visualizes key insights using Python. This project demonstrates an ETL (Extract, Transform, Load) pipeline along with data cleaning, analysis, and visualization techniques.
 
+🇫🇷 **French Version:** [README_FR.md](README_FR.md)
+
 ## Table of Contents
 
 - [Overview](#overview)
