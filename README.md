@@ -62,7 +62,7 @@ BooksToScrape_ETL/
 1. **Clone the repository:**
 
    ```bash
-   git clone https://github.com/your-username/BooksToScrape_ETL.git
+   git clone https://github.com/LukasMFR/BooksToScrape_ETL.git
    cd BooksToScrape_ETL
    ```
 
