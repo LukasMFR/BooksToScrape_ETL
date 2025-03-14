@@ -13,6 +13,7 @@
   - [Scraping and Database Insertion](#scraping-and-database-insertion)
   - [Data Cleaning and Analysis](#data-cleaning-and-analysis)
   - [Data Visualization](#data-visualization)
+- [Development Environment](#development-environment)
 - [Database Setup](#database-setup)
 - [License](#license)
 
@@ -36,6 +37,7 @@ BooksToScrape_ETL/
 ├── data_cleaning_analysis.py   # Script for cleaning and analyzing the scraped data
 ├── data_visualization.py       # Script for generating visualizations
 ├── database.sql                # SQL script to create the MySQL database and tables
+├── requirements.txt            # List of Python package dependencies
 └── README.md                   # This file
 ```
 
@@ -56,6 +58,8 @@ BooksToScrape_ETL/
 - [MySQL Connector/Python](https://dev.mysql.com/doc/connector-python/en/)
 - [Matplotlib](https://matplotlib.org/)
 - [Seaborn](https://seaborn.pydata.org/)
+- [openpyxl](https://pypi.org/project/openpyxl/)
+- [NumPy](https://numpy.org/)
 
 ## Installation
 
@@ -78,8 +82,6 @@ BooksToScrape_ETL/
    ```bash
    pip install -r requirements.txt
    ```
-
-   *(Ensure your `requirements.txt` includes all necessary libraries.)*
 
 ## Usage
 
@@ -112,6 +114,10 @@ BooksToScrape_ETL/
   ```bash
   python data_visualization.py
   ```
+
+## Development Environment
+
+This project was developed using [PyCharm](https://www.jetbrains.com/pycharm/), which provides excellent tools for debugging, code management, and testing. You can easily import the project into PyCharm by selecting the project directory and opening it as a new project. PyCharm's virtual environment support is recommended for managing dependencies.
 
 ## Database Setup
 
