@@ -15,6 +15,7 @@
   - [Scraping and Database Insertion](#scraping-and-database-insertion)
   - [Data Cleaning and Analysis](#data-cleaning-and-analysis)
   - [Data Visualization](#data-visualization)
+  - [Main Interactive Script](#main-interactive-script)
 - [Development Environment](#development-environment)
 - [Database Setup](#database-setup)
 - [License](#license)
@@ -115,6 +116,17 @@ BooksToScrape_ETL/
 
   ```bash
   python data_visualization.py
+  ```
+
+### Main Interactive Script
+
+- **Script:** `main.py`
+- **Description:**  
+  This interactive script orchestrates the entire ETL pipeline by offering a menu. You can choose to run individual parts—Scraping and Database Insertion, Data Cleaning and Analysis, or Data Visualization—or run the full pipeline in one go. It uses the **rich** library for colorful, user-friendly console output.
+- **Usage:**
+
+  ```bash
+  python main.py
   ```
 
 ## Development Environment
