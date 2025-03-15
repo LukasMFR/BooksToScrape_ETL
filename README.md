@@ -63,6 +63,7 @@ BooksToScrape_ETL/
 - [Seaborn](https://seaborn.pydata.org/)
 - [openpyxl](https://pypi.org/project/openpyxl/)
 - [NumPy](https://numpy.org/)
+- [Rich](https://rich.readthedocs.io/)
 
 ## Installation
 
