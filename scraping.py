@@ -20,6 +20,7 @@ import json
 import pandas as pd
 import mysql.connector
 from mysql.connector import Error
+import concurrent.futures
 
 # Définir le dossier de sortie pour les fichiers exportés
 output_dir = "output"
@@ -114,6 +115,43 @@ def fetch_all_pages(base_url):
             break
     return all_books
 
+def fetch_all_pages_concurrent(base_url):
+    """
+    Parcourt toutes les pages du site en parallèle en suivant la pagination.
+    On part du principe que le site comporte 50 pages (ou on peut extraire ce nombre depuis la première page).
+    Retourne la liste complète des livres extraits.
+    """
+    # Récupérer la première page pour tenter d'extraire le nombre total de pages
+    first_page_html = fetch_page(base_url)
+    if not first_page_html:
+        return []
+    soup = BeautifulSoup(first_page_html, 'html.parser')
+    # Tente d'extraire le nombre de pages depuis le texte "Page 1 of 50"
+    current_page_text = soup.find("li", class_="current")
+    if current_page_text:
+        try:
+            # Ex: "Page 1 of 50" => on récupère 50
+            num_pages = int(current_page_text.get_text(strip=True).split()[-1])
+        except Exception as e:
+            print("Impossible d'extraire le nombre de pages, utilisation de 50 par défaut.")
+            num_pages = 50
+    else:
+        num_pages = 50
+
+    # Générer la liste des URLs : la première page est base_url, puis les pages suivantes
+    urls = [base_url]
+    for i in range(2, num_pages + 1):
+        page_url = f"http://books.toscrape.com/catalogue/page-{i}.html"
+        urls.append(page_url)
+
+    books = []
+    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+        results = executor.map(fetch_page, urls)
+        for html in results:
+            if html:
+                books.extend(parse_books(html))
+    return books
+
 def save_data_csv(books, filename="books.csv"):
     """
     Sauvegarde la liste des livres dans un fichier CSV dans le dossier 'output'.
@@ -197,7 +235,7 @@ def main():
     base_url = "http://books.toscrape.com/"
     print("Début du scraping du site :", base_url)
 
-    books = fetch_all_pages(base_url)
+    books = fetch_all_pages_concurrent(base_url)
     print(f"{len(books)} livres trouvés.")
 
     # Affichage de quelques livres pour vérification
@@ -210,7 +248,7 @@ def main():
     save_data_excel(books)
 
     # Insertion des données dans la base de données MySQL
-    # Ajuste host, user et password en fonction de ta configuration locale
+    # Ajustez host, user et password selon votre configuration
     insert_data_mysql(books)
 
 if __name__ == "__main__":
