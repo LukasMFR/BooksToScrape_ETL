@@ -24,6 +24,7 @@ from mysql.connector import Error
 import concurrent.futures
 from urllib.parse import urljoin
 import time
+from tqdm import tqdm  # pour afficher la progression
 
 # Définir le dossier de sortie pour les fichiers exportés
 output_dir = "output"
@@ -45,7 +46,6 @@ def fetch_page(url):
         return response.text, response.url
     except Exception as e:
         print(f"Erreur lors du téléchargement de la page {url} : {e}")
-        # Petite pause avant de continuer
         time.sleep(0.2)
         return None, url
 
@@ -78,12 +78,14 @@ def parse_books(html, page_url):
         - category     : la catégorie extraite de la page de détail
     """
     soup = BeautifulSoup(html, 'html.parser')
-    books = []
+    books_data = []
     articles = soup.find_all('article', class_='product_pod')
 
     # Dictionnaire pour convertir la note en entier
     rating_mapping = {"One": 1, "Two": 2, "Three": 3, "Four": 4, "Five": 5}
 
+    # Première boucle : extraire les infos de base et collecter les liens produits
+    product_links = []
     for article in articles:
         h3 = article.find('h3')
         a_tag = h3.find('a')
@@ -92,6 +94,7 @@ def parse_books(html, page_url):
         link = a_tag.get('href', '').strip()
         # Utiliser page_url pour résoudre correctement les liens relatifs
         product_link = urljoin(page_url, link)
+        product_links.append(product_link)
 
         # Extraction et conversion du prix
         price_tag = article.find('p', class_='price_color')
@@ -109,17 +112,23 @@ def parse_books(html, page_url):
                     rating = rating_mapping[cls]
                     break
 
-        # Récupérer la catégorie en visitant la page de détail
-        category = fetch_category(product_link)
-
-        books.append({
+        books_data.append({
             "title": title,
             "price": price_value,
             "rating": rating,
             "product_link": product_link,
-            "category": category
+            "category": None  # à renseigner ensuite
         })
-    return books
+
+    # Deuxième boucle : récupérer les catégories en parallèle pour chaque produit
+    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+        # On affiche une barre de progression pour le chargement des catégories
+        categories = list(tqdm(executor.map(fetch_category, product_links), total=len(product_links), desc="Récupération des catégories"))
+    # Affecter les catégories aux livres
+    for i, book in enumerate(books_data):
+        book["category"] = categories[i]
+
+    return books_data
 
 def fetch_all_pages(base_url):
     """
@@ -175,10 +184,11 @@ def fetch_all_pages_concurrent(base_url):
         urls.append(page_url)
 
     books = []
+    # Ici on utilise 10 workers pour récupérer les pages de listing
     with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
         results = list(executor.map(fetch_page, urls))
-        # Chaque résultat est un tuple (html, effective_url)
-        for html, effective_url in results:
+        # Utilisation de tqdm pour afficher la progression dans le traitement des pages
+        for html, effective_url in tqdm(results, total=len(results), desc="Traitement des pages listing"):
             if html:
                 books.extend(parse_books(html, effective_url))
     return books
@@ -243,7 +253,6 @@ def insert_data_mysql(books, host='localhost', user='root', password='12345678',
         )
         if connection.is_connected():
             cursor = connection.cursor()
-            # Vider la table avant d'insérer de nouvelles données
             cursor.execute("TRUNCATE TABLE books;")
             connection.commit()
 
