@@ -51,6 +51,7 @@ def clean_data(df):
     df['price'] = df['price'].fillna(0)
     df['rating'] = df['rating'].fillna(0)
     df['product_link'] = df['product_link'].fillna("inconnu")
+    df['category'] = df['category'].fillna("inconnu")
 
     # Conversion des types de données
     # Conversion du prix en nombre (float) : suppression éventuelle du symbole '£'
@@ -61,22 +62,19 @@ def clean_data(df):
     # Conversion du rating en entier puis en catégorie
     df['rating'] = pd.to_numeric(df['rating'], errors='coerce').fillna(0).astype(int)
 
-    # Normalisation du texte pour la colonne title (création d'une colonne normalisée)
+    # Normalisation du texte pour la colonne title et la colonne category
     df['title_normalized'] = df['title'].apply(normalize_text)
+    df['category_normalized'] = df['category'].apply(normalize_text)
 
     # Ajout d'une colonne calculée : catégorisation du prix
     # Exemple de catégorisation : Low (<20), Medium (20-50), High (>50)
-    conditions = [
-        (df['price'] < 20),
-        (df['price'] >= 20) & (df['price'] <= 50),
-        (df['price'] > 50)
-    ]
-    categories = ['Low', 'Medium', 'High']
-    df['price_category'] = pd.cut(df['price'], bins=[-np.inf, 20, 50, np.inf], labels=categories)
+    categories_price = ['Low', 'Medium', 'High']
+    df['price_category'] = pd.cut(df['price'], bins=[-np.inf, 20, 50, np.inf], labels=categories_price)
 
     # Normalisation des colonnes catégorielles : conversion en type "category"
     df['price_category'] = df['price_category'].astype('category')
     df['rating'] = df['rating'].astype('category')
+    df['category'] = df['category_normalized'].astype('category')
 
     # Affichage final des valeurs manquantes et des statistiques
     print("\nValeurs manquantes par colonne APRÈS nettoyage:")
@@ -103,6 +101,11 @@ def analyze_data(df):
     price_category_counts = df['price_category'].value_counts()
     print("\nNombre de livres par catégorie de prix:")
     print(price_category_counts)
+
+    # Nombre de livres par catégorie (normalisée)
+    category_counts = df['category'].value_counts()
+    print("\nNombre de livres par catégorie:")
+    print(category_counts)
 
 def save_clean_data(df, filename=None):
     """Sauvegarde les données nettoyées dans un fichier CSV situé dans le dossier 'output'."""
