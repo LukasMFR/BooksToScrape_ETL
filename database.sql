@@ -7,13 +7,14 @@ CREATE DATABASE IF NOT EXISTS books_scrape
 -- Sélection de la base de données
 USE books_scrape;
 
--- Création de la table "books" avec les modifications pour le prix et le rating
+-- Création de la table "books"
 CREATE TABLE IF NOT EXISTS books (
     id INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     price DECIMAL(6,2) NOT NULL,
     rating INT NOT NULL,
-    product_link VARCHAR(255) NOT NULL
+    product_link VARCHAR(255) NOT NULL,
+    category VARCHAR(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Pour afficher les tables et leur contenu :
