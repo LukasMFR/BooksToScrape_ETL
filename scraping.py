@@ -11,6 +11,7 @@ Ce script extrait pour chaque livre :
 
 Le script parcourt toutes les pages du site et sauvegarde les données extraites
 dans des fichiers CSV, JSON, Excel (dans un dossier 'output'), puis insère ces données dans la base de données MySQL.
+Il affiche également la durée totale du scraping.
 """
 
 import os
@@ -25,6 +26,7 @@ import concurrent.futures
 from urllib.parse import urljoin
 import time
 from tqdm import tqdm  # pour afficher la progression
+from tqdm import tqdm  # Pour afficher la progression
 
 # Définir le dossier de sortie pour les fichiers exportés
 output_dir = "output"
@@ -122,8 +124,9 @@ def parse_books(html, page_url):
 
     # Deuxième boucle : récupérer les catégories en parallèle pour chaque produit
     with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-        # On affiche une barre de progression pour le chargement des catégories
-        categories = list(tqdm(executor.map(fetch_category, product_links), total=len(product_links), desc="Récupération des catégories"))
+        categories = list(tqdm(executor.map(fetch_category, product_links),
+                               total=len(product_links),
+                               desc="Récupération des catégories"))
     # Affecter les catégories aux livres
     for i, book in enumerate(books_data):
         book["category"] = categories[i]
@@ -281,9 +284,11 @@ def insert_data_mysql(books, host='localhost', user='root', password='12345678',
 def main():
     base_url = "http://books.toscrape.com/"
     print("Début du scraping du site :", base_url)
+    start_time = time.time()  # Démarrage du chronomètre
 
     books = fetch_all_pages_concurrent(base_url)
-    print(f"{len(books)} livres trouvés.")
+    duration = time.time() - start_time  # Durée totale du scraping
+    print(f"{len(books)} livres trouvés en {duration:.2f} secondes.")
 
     # Affichage de quelques livres pour vérification
     for book in books[:5]:
