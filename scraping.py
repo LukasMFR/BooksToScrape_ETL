@@ -123,7 +123,7 @@ def parse_books(html, page_url):
         })
 
     # Deuxième boucle : récupérer les catégories en parallèle pour chaque produit
-    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=15) as executor:
         categories = list(tqdm(executor.map(fetch_category, product_links),
                                total=len(product_links),
                                desc="Récupération des catégories"))
@@ -187,8 +187,7 @@ def fetch_all_pages_concurrent(base_url):
         urls.append(page_url)
 
     books = []
-    # Ici on utilise 10 workers pour récupérer les pages de listing
-    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
         results = list(executor.map(fetch_page, urls))
         # Utilisation de tqdm pour afficher la progression dans le traitement des pages
         for html, effective_url in tqdm(results, total=len(results), desc="Traitement des pages listing"):
