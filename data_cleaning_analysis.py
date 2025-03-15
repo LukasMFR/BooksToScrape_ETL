@@ -8,6 +8,7 @@ nettoie et prépare les données en effectuant :
     - Gestion des valeurs manquantes
     - Ajout de colonnes calculées pertinentes
     - Normalisation des catégories (textes et colonnes catégorielles)
+    - Traduction des catégories en français
 Les données nettoyées sont ensuite sauvegardées dans un nouveau fichier CSV dans le dossier 'output'.
 """
 
@@ -36,6 +37,67 @@ def normalize_text(text):
         # Convertir en minuscules
         return text.lower().strip()
     return text
+
+def translate_category(cat):
+    """
+    Traduit la catégorie en anglais en français.
+    Si la catégorie n'est pas dans le dictionnaire, elle est retournée telle quelle.
+    """
+    translations = {
+        "books": "Livres",
+        "travel": "Voyage",
+        "mystery": "Mystère",
+        "historical fiction": "Fiction Historique",
+        "sequential art": "Art Séquentiel",
+        "classics": "Classiques",
+        "philosophy": "Philosophie",
+        "romance": "Romance",
+        "womens fiction": "Fiction Féminine",
+        "fiction": "Fiction",
+        "childrens": "Pour Enfants",
+        "religion": "Religion",
+        "nonfiction": "Non-fiction",
+        "music": "Musique",
+        "default": "Défaut",
+        "science fiction": "Science-fiction",
+        "sports and games": "Sports et Jeux",
+        "add a comment": "Ajouter un commentaire",
+        "fantasy": "Fantaisie",
+        "new adult": "Nouveaux Adultes",
+        "young adult": "Jeunes Adultes",
+        "science": "Science",
+        "poetry": "Poésie",
+        "paranormal": "Paranormal",
+        "art": "Art",
+        "psychology": "Psychologie",
+        "autobiography": "Autobiographie",
+        "parenting": "Parentalité",
+        "adult fiction": "Fiction pour adultes",
+        "humor": "Humour",
+        "horror": "Horreur",
+        "history": "Histoire",
+        "food and drink": "Cuisine et Boissons",
+        "christian fiction": "Fiction Chrétienne",
+        "business": "Affaires",
+        "biography": "Biographie",
+        "thriller": "Thriller",
+        "contemporary": "Contemporain",
+        "spirituality": "Spiritualité",
+        "academic": "Académique",
+        "self help": "Développement Personnel",
+        "historical": "Historique",
+        "christian": "Chrétien",
+        "suspense": "Suspense",
+        "short stories": "Nouvelles",
+        "novels": "Romans",
+        "health": "Santé",
+        "politics": "Politique",
+        "cultural": "Culturel",
+        "erotica": "Érotisme",
+        "crime": "Crime"
+    }
+    cat_norm = cat.lower().strip()
+    return translations.get(cat_norm, cat)
 
 def clean_data(df):
     """Nettoyage et préparation des données."""
@@ -66,6 +128,9 @@ def clean_data(df):
     df['title_normalized'] = df['title'].apply(normalize_text)
     df['category_normalized'] = df['category'].apply(normalize_text)
 
+    # Traduction des catégories en français et création d'une nouvelle colonne
+    df['category_fr'] = df['category_normalized'].apply(translate_category)
+
     # Ajout d'une colonne calculée : catégorisation du prix
     # Exemple de catégorisation : Low (<20), Medium (20-50), High (>50)
     categories_price = ['Low', 'Medium', 'High']
@@ -75,6 +140,7 @@ def clean_data(df):
     df['price_category'] = df['price_category'].astype('category')
     df['rating'] = df['rating'].astype('category')
     df['category'] = df['category_normalized'].astype('category')
+    df['category_fr'] = df['category_fr'].astype('category')
 
     # Affichage final des valeurs manquantes et des statistiques
     print("\nValeurs manquantes par colonne APRÈS nettoyage:")
@@ -106,6 +172,10 @@ def analyze_data(df):
     category_counts = df['category'].value_counts()
     print("\nNombre de livres par catégorie:")
     print(category_counts)
+
+    category_fr_counts = df['category_fr'].value_counts()
+    print("\nNombre de livres par catégorie (en français):")
+    print(category_fr_counts)
 
 def save_clean_data(df, filename=None):
     """Sauvegarde les données nettoyées dans un fichier CSV situé dans le dossier 'output'."""
