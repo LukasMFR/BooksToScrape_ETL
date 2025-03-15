@@ -7,3 +7,5 @@ seaborn
 openpyxl
 numpy
 rich
+bs4
+tqdm
